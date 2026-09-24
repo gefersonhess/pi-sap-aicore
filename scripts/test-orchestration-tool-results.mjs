@@ -199,6 +199,45 @@ console.log("\nstandalone tool result without a matching call");
 	);
 }
 
+console.log("\nnormalized transcript system messages supply prompt and tools (pi 0.87+)");
+{
+	const bashTool = {
+		name: "bash",
+		description: "run a command",
+		parameters: {
+			type: "object",
+			properties: { command: { type: "string" } },
+			required: ["command"],
+		},
+	};
+	const normalizedTranscript = {
+		messages: [
+			{
+				role: "system",
+				content: "You are a coding agent.",
+				toolsAdded: [bashTool],
+				timestamp: 0,
+			},
+			{ role: "user", content: "Run printf" },
+		],
+	};
+
+	const normalized = normalizeContext(normalizedTranscript, MODEL);
+	const translated = piContextToOrchestration(normalized);
+	check(
+		normalized.systemPrompt === "You are a coding agent.",
+		"the current system prompt is recovered from transcript system messages",
+	);
+	check(
+		translated.tools.length === 1 && translated.tools[0].function.name === "bash",
+		"the current tool declarations are recovered from transcript system messages",
+	);
+	check(
+		translated.messages[0]?.role === "system",
+		"the recovered system prompt reaches orchestration",
+	);
+}
+
 console.log("\ntoolChoice: none suppresses tools (pi 0.84.3 compaction turns)");
 {
 	const base = {
