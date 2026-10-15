@@ -63,6 +63,7 @@ type TranscriptSystemMessage = {
 };
 
 function resolveTranscriptContext(context: Context): Context {
+	// SAFETY: Pi supplies message objects; older typings omit the system role.
 	const transcriptMessages = context.messages as unknown as Array<{
 		role?: string;
 	}>;
@@ -100,7 +101,7 @@ function systemContentText(content: TranscriptSystemMessage["content"]): string 
 	return (content ?? [])
 		.filter((part) => part.type === "text" && typeof part.text === "string")
 		.map((part) => part.text)
-		.join("");
+		.join("\n");
 }
 
 // pi 0.84.3 added `toolChoice` ("auto" | "none") to SimpleStreamOptions, and

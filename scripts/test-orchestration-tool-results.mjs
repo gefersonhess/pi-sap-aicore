@@ -236,6 +236,20 @@ console.log("\nnormalized transcript system messages supply prompt and tools (pi
 		translated.messages[0]?.role === "system",
 		"the recovered system prompt reaches orchestration",
 	);
+
+	const multipart = normalizeContext({
+		messages: [{
+			...normalizedTranscript.messages[0],
+			content: [
+				{ type: "text", text: "First instruction." },
+				{ type: "text", text: "Second instruction." },
+			],
+		}, ...normalizedTranscript.messages.slice(1)],
+	}, MODEL);
+	check(
+		multipart.systemPrompt === "First instruction.\nSecond instruction.",
+		"separate system text blocks retain Pi's newline boundaries",
+	);
 }
 
 console.log("\ntoolChoice: none suppresses tools (pi 0.84.3 compaction turns)");
